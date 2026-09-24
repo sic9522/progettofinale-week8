@@ -1,0 +1,6 @@
+spring.application.name=progetto-finale-week8
+spring.datasource.url=jdbc:postgresql://localhost:5432/progetto_finale_week8
+spring.datasource.username=${POSTGRES}
+spring.datasource.password=${POSTGRES_PASSWORD}
+spring.jpa.hibernate.ddl-auto=update
+jwt.secret=${JWT}

@@ -40,12 +40,19 @@ public class Preferito {
 	@JoinColumn(name = "auto_id", nullable = false)
 	private Auto auto;
 
-	// null = nessun avviso di prezzo attivo su questo preferito
+	// facoltativa: se impostata, l'avviso di ribasso parte solo sotto questa cifra
 	@Column(name = "soglia_prezzo", precision = 10, scale = 2)
 	private BigDecimal sogliaPrezzo;
 
+	// non piu' usato dagli avvisi (ora partono a ogni ribasso); resta perche' la colonna
+	// e' NOT NULL nel database gia' esistente
 	@Column(name = "prezzo_inviato", nullable = false)
 	private boolean prezzoInviato = false;
+
+	// avviso di ribasso attivo di default su ogni preferito; il link "disattiva" lo spegne.
+	// default nel DDL: la colonna arriva su una tabella gia' popolata (ddl-auto=update)
+	@Column(name = "notifica_prezzo", nullable = false, columnDefinition = "boolean default true")
+	private boolean notificaPrezzo = true;
 
 	@Column(name = "notifica_disponibilita", nullable = false)
 	private boolean notificaDisponibilita = true;

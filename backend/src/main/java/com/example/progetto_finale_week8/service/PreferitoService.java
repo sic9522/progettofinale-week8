@@ -70,9 +70,9 @@ public class PreferitoService {
 		Preferito preferito = trova(preferitoId, userId);
 
 		if (!Objects.equals(preferito.getSogliaPrezzo(), r.sogliaPrezzo())) {
-			// una soglia nuova è un avviso diverso da sorvegliare, anche se la riga è la stessa
+			// chi imposta una soglia vuole gli avvisi: li riaccende anche se li aveva disattivati
 			preferito.setSogliaPrezzo(r.sogliaPrezzo());
-			preferito.setPrezzoInviato(false);
+			preferito.setNotificaPrezzo(true);
 		}
 		if (r.notificaDisponibilita() != null && r.notificaDisponibilita() && !preferito.isNotificaDisponibilita()) {
 			preferito.setDisponibilitaInviata(false);
@@ -93,8 +93,7 @@ public class PreferitoService {
 	public void disiscriviPrezzo(UUID token) {
 		Preferito preferito = preferitoRepository.findByTokenDisiscrizionePrezzo(token)
 			.orElseThrow(() -> new BadRequestException("Link non valido"));
-		preferito.setSogliaPrezzo(null);
-		preferito.setPrezzoInviato(false);
+		preferito.setNotificaPrezzo(false);
 	}
 
 	@Transactional

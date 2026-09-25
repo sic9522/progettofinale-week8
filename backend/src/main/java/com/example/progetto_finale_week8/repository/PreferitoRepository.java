@@ -27,18 +27,13 @@ public interface PreferitoRepository extends JpaRepository<Preferito, Long> {
 
 	Optional<Preferito> findByTokenDisiscrizioneDisponibilita(UUID token);
 
-	List<Preferito> findByAutoIdAndSogliaPrezzoGreaterThanEqualAndPrezzoInviatoFalse(Long autoId, BigDecimal nuovoPrezzo);
+	List<Preferito> findByAutoIdAndNotificaPrezzoTrue(Long autoId);
 
 	List<Preferito> findByAutoIdAndNotificaDisponibilitaTrueAndDisponibilitaInviataFalse(Long autoId);
 
 	// UPDATE atomico: due eventi ravvicinati sullo stesso preferito non mandano due mail.
 	// @Transactional qui: AvvisoListener gira dopo il commit, fuori da ogni transazione,
 	// e senza una propria l'UPDATE falliva (TransactionRequiredException) prima dell'email
-	@Transactional
-	@Modifying(flushAutomatically = true, clearAutomatically = true)
-	@Query("UPDATE Preferito p SET p.prezzoInviato = true WHERE p.id = :id AND p.prezzoInviato = false")
-	int segnaPrezzoInviato(@Param("id") Long id);
-
 	@Transactional
 	@Modifying(flushAutomatically = true, clearAutomatically = true)
 	@Query("UPDATE Preferito p SET p.disponibilitaInviata = true WHERE p.id = :id AND p.disponibilitaInviata = false")

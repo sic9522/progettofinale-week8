@@ -8,7 +8,7 @@
 		<span th:text="${nome}">nome</span>, il tuo sogno costa meno
 	</h1>
 	<p style="margin:0 0 24px;">
-		Un'auto che hai salvato tra i preferiti &egrave; scesa sotto la soglia di prezzo che avevi scelto.
+		Un'auto che hai salvato tra i preferiti ha appena abbassato il prezzo.
 	</p>
 
 	<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
@@ -23,8 +23,12 @@
 				<div style="font-family:'Cormorant',Georgia,serif;font-style:italic;font-weight:700;font-size:24px;color:#1c1917;" th:text="${marca}">Marca</div>
 				<div style="font-size:13px;color:#78716c;" th:text="${modello}">Modello</div>
 				<div style="margin-top:12px;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#78716c;">Nuovo prezzo</div>
+				<div style="font-size:15px;color:#78716c;text-decoration:line-through;"
+					th:text="${#numbers.formatDecimal(prezzoPrecedente, 1, 'POINT', 0, 'COMMA')} + ' €'">0 €</div>
 				<div style="font-size:28px;font-weight:700;color:#c81e1e;"
 					th:text="${#numbers.formatDecimal(prezzo, 1, 'POINT', 0, 'COMMA')} + ' €'">0 €</div>
+				<div style="margin-top:2px;font-size:13px;font-weight:600;color:#15803d;"
+					th:text="'Risparmi ' + ${#numbers.formatDecimal(prezzoPrecedente - prezzo, 1, 'POINT', 0, 'COMMA')} + ' €'">Risparmi 0 €</div>
 			</td>
 		</tr>
 	</table>

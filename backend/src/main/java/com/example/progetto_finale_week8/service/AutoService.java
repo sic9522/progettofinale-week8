@@ -207,7 +207,7 @@ public class AutoService {
 		storico.setPrezzoPrecedente(prezzoPrecedente);
 		storico.setPrezzoNuovo(nuovoPrezzo);
 		storicoPrezzoRepository.save(storico);
-		eventi.publishEvent(new PrezzoCambiatoEvent(auto.getId(), nuovoPrezzo));
+		eventi.publishEvent(new PrezzoCambiatoEvent(auto.getId(), prezzoPrecedente, nuovoPrezzo));
 	}
 
 	private Auto trova(Long id) {

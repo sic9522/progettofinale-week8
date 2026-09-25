@@ -54,12 +54,6 @@ class PreferitoRepositoryTest {
 		preferito.setSogliaPrezzo(new BigDecimal("130000.00"));
 		preferitoRepository.save(preferito);
 
-		int primoAggiornamento = preferitoRepository.segnaPrezzoInviato(preferito.getId());
-		int secondoAggiornamento = preferitoRepository.segnaPrezzoInviato(preferito.getId());
-
-		assertThat(primoAggiornamento).isEqualTo(1);
-		assertThat(secondoAggiornamento).isEqualTo(0);
-
 		int primoDisponibilita = preferitoRepository.segnaDisponibilitaInviata(preferito.getId());
 		int secondoDisponibilita = preferitoRepository.segnaDisponibilitaInviata(preferito.getId());
 

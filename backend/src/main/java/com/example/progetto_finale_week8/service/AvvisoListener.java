@@ -1,5 +1,6 @@
 package com.example.progetto_finale_week8.service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -41,29 +42,35 @@ public class AvvisoListener {
 	@Async
 	@TransactionalEventListener(phase = AFTER_COMMIT)
 	public void onPrezzoCambiato(PrezzoCambiatoEvent event) {
+		// solo i ribassi: un aumento (o la rimozione di un'offerta) non e' una buona notizia
+		if (event.nuovoPrezzo().compareTo(event.prezzoPrecedente()) >= 0) {
+			return;
+		}
 		Auto auto = autoRepository.findById(event.autoId()).orElse(null);
 		if (auto == null) {
 			return;
 		}
-		List<Preferito> preferiti = preferitoRepository
-			.findByAutoIdAndSogliaPrezzoGreaterThanEqualAndPrezzoInviatoFalse(event.autoId(), event.nuovoPrezzo());
+		String foto = copertina(auto.getId());
 
-		for (Preferito preferito : preferiti) {
-			// UPDATE condizionato: se due eventi arrivano quasi insieme, solo uno dei due
-			// aggiorna davvero la riga e quindi manda la mail
-			if (preferitoRepository.segnaPrezzoInviato(preferito.getId()) == 1) {
-				Context contesto = new Context();
-				contesto.setVariable("nome", preferito.getUser().getNome());
-				contesto.setVariable("marca", auto.getMarca());
-				contesto.setVariable("modello", auto.getModello());
-				contesto.setVariable("foto", copertina(auto.getId()));
-				contesto.setVariable("prezzo", event.nuovoPrezzo());
-				contesto.setVariable("link", frontendUrl + "/?auto=" + auto.getId());
-				contesto.setVariable("linkDisiscrizione",
-					frontendUrl + "/disiscrivi/prezzo?token=" + preferito.getTokenDisiscrizionePrezzo());
-				emailService.invia(preferito.getUser().getEmail(), "Il prezzo è sceso: " + auto.getMarca() + " " + auto.getModello(),
-					"avviso-prezzo", contesto);
+		// ogni ribasso e' un evento a se': a chi ha l'auto nei preferiti arriva una mail per
+		// ciascuno. La soglia, se il cliente l'ha impostata, filtra i ribassi troppo piccoli
+		for (Preferito preferito : preferitoRepository.findByAutoIdAndNotificaPrezzoTrue(event.autoId())) {
+			BigDecimal soglia = preferito.getSogliaPrezzo();
+			if (soglia != null && event.nuovoPrezzo().compareTo(soglia) > 0) {
+				continue;
 			}
+			Context contesto = new Context();
+			contesto.setVariable("nome", preferito.getUser().getNome());
+			contesto.setVariable("marca", auto.getMarca());
+			contesto.setVariable("modello", auto.getModello());
+			contesto.setVariable("foto", foto);
+			contesto.setVariable("prezzoPrecedente", event.prezzoPrecedente());
+			contesto.setVariable("prezzo", event.nuovoPrezzo());
+			contesto.setVariable("link", frontendUrl + "/?auto=" + auto.getId());
+			contesto.setVariable("linkDisiscrizione",
+				frontendUrl + "/disiscrivi/prezzo?token=" + preferito.getTokenDisiscrizionePrezzo());
+			emailService.invia(preferito.getUser().getEmail(), "Il prezzo è sceso: " + auto.getMarca() + " " + auto.getModello(),
+				"avviso-prezzo", contesto);
 		}
 	}
 

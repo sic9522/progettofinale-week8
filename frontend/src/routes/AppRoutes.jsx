@@ -8,6 +8,7 @@ import ChiSiamo from '../pages/ChiSiamo'
 import Login from '../pages/Login'
 import Registrati from '../pages/Registrati'
 import ReimpostaPassword from '../pages/ReimpostaPassword'
+import ConfermaRegistrazione from '../pages/ConfermaRegistrazione'
 import AdminPrestiti from '../pages/AdminPrestiti'
 import AdminNotifiche from '../pages/AdminNotifiche'
 import { isAdmin } from '../utils/ruolo'
@@ -70,6 +71,7 @@ function AppRoutes() {
           <Route path="/login" element={<Login />} />
           <Route path="/registrati" element={<Registrati />} />
           <Route path="/reimposta-password" element={<ReimpostaPassword />} />
+          <Route path="/conferma" element={<ConfermaRegistrazione />} />
           <Route
             path="/prestiti"
             element={

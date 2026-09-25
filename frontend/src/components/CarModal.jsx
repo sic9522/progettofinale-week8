@@ -198,6 +198,13 @@ function CarModal({ auto: autoIniziale, onClose }) {
     setAuto(data)
   }
 
+  // stessa chiamata di Prestiti: se l'auto era in offerta il backend toglie l'offerta
+  // (noleggio e offerta non sono cumulabili) e la risposta ha gia' il prezzo ripristinato
+  async function handleAggiungiNoleggio() {
+    const { data } = await api.patch(`/api/admin/auto/${auto.id}/noleggio`, { disponibile: true })
+    setAuto(data)
+  }
+
   async function handleRimuoviNoleggio() {
     const { data } = await api.patch(`/api/admin/auto/${auto.id}/noleggio`, { disponibile: false })
     setAuto(data)
@@ -302,9 +309,18 @@ function CarModal({ auto: autoIniziale, onClose }) {
                     Offerta
                   </button>
                 )}
-                {auto.disponibileNoleggio && (
+                {auto.disponibileNoleggio ? (
                   <button type="button" className="car-modal-offerta-btn" onClick={handleRimuoviNoleggio}>
                     Rimuovi dal noleggio
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className="car-modal-offerta-btn car-modal-noleggio-btn"
+                    title={auto.inOfferta ? "Mettendola a noleggio l'offerta viene tolta" : undefined}
+                    onClick={handleAggiungiNoleggio}
+                  >
+                    Aggiungi al noleggio
                   </button>
                 )}
               </div>

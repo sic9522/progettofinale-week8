@@ -58,7 +58,7 @@ function AccountMenu({ className, isDesktop, autenticato, admin, nomeUtente, onL
     return (
       <span className={className}>
         <ProfileIcon />
-        {autenticato && nomeUtente && <span className="header-account-nome">{nomeUtente}</span>}
+        {autenticato && <span className="header-account-nome">Admin</span>}
       </span>
     )
   }

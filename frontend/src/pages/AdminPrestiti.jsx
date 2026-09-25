@@ -6,6 +6,7 @@ import 'swiper/css'
 import 'swiper/css/navigation'
 
 import CarCard from '../components/CarCard'
+import Patente from '../components/Patente'
 import api from '../services/api'
 import { formatPrezzo } from '../utils/formatPrezzo'
 
@@ -83,26 +84,38 @@ function PersonalizzaForm({ prezzo, mesi, setMesi, anticipo, setAnticipo, sconto
 // solo a quel punto parte l'email e il noleggio compare nel profilo del cliente
 function ConfermaNoleggioModal({ auto, mesi, anticipo, sconto, onClose, onConfermato }) {
   const [termine, setTermine] = useState('')
-  const [risultati, setRisultati] = useState(null)
-  const [cercando, setCercando] = useState(false)
+  // risultati legati al termine che li ha prodotti: una risposta arrivata tardi per un
+  // termine gia' cambiato non viene mostrata
+  const [ricerca, setRicerca] = useState({ termine: '', lista: [], errore: false })
   const [clienteScelto, setClienteScelto] = useState(null)
   const [confermando, setConfermando] = useState(false)
   const [errore, setErrore] = useState('')
 
-  async function handleCerca(e) {
-    e.preventDefault()
-    setCercando(true)
-    setErrore('')
-    try {
-      const { data } = await api.get('/api/admin/utenti/cerca', { params: { termine } })
-      setRisultati(data)
-      if (data.length === 0) setErrore('Nessun cliente trovato.')
-    } catch {
-      setErrore('Ricerca non riuscita.')
-    } finally {
-      setCercando(false)
+  const pulito = termine.trim()
+  // un id e' valido anche di una cifra, il resto da 2 caratteri in su
+  const cercabile = /^\d+$/.test(pulito) || pulito.length >= 2
+  const aggiornata = ricerca.termine === pulito
+  const risultati = cercabile && aggiornata ? ricerca.lista : []
+
+  // ricerca live: parte 300 ms dopo l'ultima lettera, non a ogni tasto
+  useEffect(() => {
+    if (!cercabile) return
+    let annullato = false
+    const timer = setTimeout(() => {
+      api
+        .get('/api/admin/utenti/cerca', { params: { termine: pulito } })
+        .then(({ data }) => {
+          if (!annullato) setRicerca({ termine: pulito, lista: data, errore: false })
+        })
+        .catch(() => {
+          if (!annullato) setRicerca({ termine: pulito, lista: [], errore: true })
+        })
+    }, 300)
+    return () => {
+      annullato = true
+      clearTimeout(timer)
     }
-  }
+  }, [pulito, cercabile])
 
   async function handleConferma() {
     setConfermando(true)
@@ -130,30 +143,31 @@ function ConfermaNoleggioModal({ auto, mesi, anticipo, sconto, onClose, onConfer
         {!clienteScelto && (
           <>
             <h3 className="login-title noleggio-invio-titolo">Trova cliente</h3>
-            <form onSubmit={handleCerca} className="login-form">
-              <input
-                type="text"
-                className="login-input"
-                placeholder="Cognome, ID o email"
-                value={termine}
-                onChange={(e) => setTermine(e.target.value)}
-                autoFocus
-                required
-              />
-              <button type="submit" className="login-submit" disabled={cercando}>
-                {cercando ? 'Cerco...' : 'Cerca'}
-              </button>
-            </form>
-            {errore && <p className="login-errore">{errore}</p>}
+            <input
+              type="search"
+              className="login-input"
+              placeholder="Cognome, nome, email o ID"
+              aria-label="Cerca cliente"
+              value={termine}
+              onChange={(e) => setTermine(e.target.value)}
+              autoFocus
+            />
+            {cercabile && !aggiornata && <p className="section-empty-note noleggio-ricerca-stato">Cerco...</p>}
+            {cercabile && aggiornata && ricerca.errore && <p className="login-errore">Ricerca non riuscita.</p>}
+            {cercabile && aggiornata && !ricerca.errore && risultati.length === 0 && (
+              <p className="section-empty-note noleggio-ricerca-stato">Nessun cliente trovato.</p>
+            )}
+            {/* ogni cliente trovato come la sua patente: cliccarla apre la conferma */}
             <div className="noleggio-risultati">
-              {(risultati || []).map((u) => (
+              {risultati.map((u) => (
                 <button
                   key={u.id}
                   type="button"
-                  className="noleggio-risultato"
+                  className="noleggio-risultato-patente"
+                  aria-label={`Scegli ${u.nome} ${u.cognome}`}
                   onClick={() => setClienteScelto(u)}
                 >
-                  {u.nome} {u.cognome} — {u.email}
+                  <Patente utente={u} />
                 </button>
               ))}
             </div>
@@ -163,16 +177,45 @@ function ConfermaNoleggioModal({ auto, mesi, anticipo, sconto, onClose, onConfer
         {clienteScelto && (
           <>
             <h3 className="login-title noleggio-invio-titolo">Confermi il noleggio?</h3>
+            <div className="noleggio-conferma-patente">
+              <Patente utente={clienteScelto} />
+            </div>
+            <dl className="car-modal-specs noleggio-conferma-riepilogo">
+              <div className="car-modal-spec-row">
+                <dt>Auto</dt>
+                <dd>
+                  {auto.marca} {auto.modello}
+                </dd>
+              </div>
+              <div className="car-modal-spec-row">
+                <dt>Durata</dt>
+                <dd>{mesi} mesi</dd>
+              </div>
+              <div className="car-modal-spec-row">
+                <dt>Anticipo</dt>
+                <dd>{formatPrezzo(anticipo)}</dd>
+              </div>
+              {sconto && (
+                <div className="car-modal-spec-row">
+                  <dt>Sconto</dt>
+                  <dd>-{sconto}%</dd>
+                </div>
+              )}
+              <div className="car-modal-spec-row">
+                <dt>Rata</dt>
+                <dd>{formatPrezzo(calcolaRata(auto.prezzo, anticipo, mesi, sconto))}/mese</dd>
+              </div>
+            </dl>
             <p className="section-empty-note">
-              {auto.marca} {auto.modello} a {clienteScelto.nome} {clienteScelto.cognome} ({clienteScelto.email})
+              Confermando il contratto diventa attivo: il cliente riceve l'email e lo trova nel suo garage.
             </p>
             {errore && <p className="login-errore">{errore}</p>}
             <div className="garage-form-actions">
               <button type="button" className="garage-btn-annulla" onClick={() => setClienteScelto(null)}>
-                Annulla
+                Indietro
               </button>
               <button type="button" className="garage-btn-conferma" onClick={handleConferma} disabled={confermando}>
-                Conferma
+                {confermando ? 'Conferma...' : 'Conferma contratto'}
               </button>
             </div>
           </>
@@ -196,7 +239,8 @@ function NoleggioManageModal({ auto, onClose, onRimuovi, onConfermato }) {
   const [confermaAperta, setConfermaAperta] = useState(false)
 
   return (
-    <Modal show onHide={onClose} centered dialogClassName="car-modal-dialog" contentClassName="car-modal-content">
+    <>
+    <Modal show={!confermaAperta} onHide={onClose} centered dialogClassName="car-modal-dialog" contentClassName="car-modal-content">
       <button type="button" className="car-modal-close" aria-label="Chiudi" onClick={onClose}>
         ×
       </button>
@@ -218,8 +262,13 @@ function NoleggioManageModal({ auto, onClose, onRimuovi, onConfermato }) {
                 <button
                   key={m}
                   type="button"
-                  className="noleggio-variante"
-                  onClick={() => setPreventivo({ mesi: m, anticipo: anticipoDefault, sconto: null })}
+                  className={
+                    preventivo?.origine === 'variante' && preventivo.mesi === m
+                      ? 'noleggio-variante attiva'
+                      : 'noleggio-variante'
+                  }
+                  aria-pressed={preventivo?.origine === 'variante' && preventivo.mesi === m}
+                  onClick={() => setPreventivo({ origine: 'variante', mesi: m, anticipo: anticipoDefault, sconto: null })}
                 >
                   <span className="noleggio-variante-mesi">{m} mesi</span>
                   <span className="noleggio-variante-rata">
@@ -229,8 +278,17 @@ function NoleggioManageModal({ auto, onClose, onRimuovi, onConfermato }) {
               ))}
             </div>
             <p className="section-empty-note">Anticipo di riferimento: {formatPrezzo(anticipoDefault)}</p>
-            <button type="button" className="login-submit" onClick={() => setPersonalizza(true)}>
-              Personalizza
+            <button
+              type="button"
+              className={
+                preventivo?.origine === 'personalizzato'
+                  ? 'noleggio-personalizza-btn attiva'
+                  : 'noleggio-personalizza-btn'
+              }
+              aria-pressed={preventivo?.origine === 'personalizzato'}
+              onClick={() => setPersonalizza(true)}
+            >
+              {preventivo?.origine === 'personalizzato' ? 'Personalizzato ✓' : 'Personalizza'}
             </button>
 
             {preventivo && (
@@ -255,14 +313,17 @@ function NoleggioManageModal({ auto, onClose, onRimuovi, onConfermato }) {
             setSconto={setSconto}
             onAnnulla={() => setPersonalizza(false)}
             onSalva={() => {
-              setPreventivo({ mesi, anticipo, sconto: sconto ? Number(sconto) : null })
+              setPreventivo({ origine: 'personalizzato', mesi, anticipo, sconto: sconto ? Number(sconto) : null })
               setPersonalizza(false)
             }}
             salvaLabel="Salva"
           />
         )}
       </div>
+    </Modal>
 
+      {/* una modale per volta: mentre si cerca il cliente questa resta nascosta (non
+          smontata, il preventivo caricato si conserva) e torna se si chiude la ricerca */}
       {confermaAperta && preventivo && (
         <ConfermaNoleggioModal
           auto={auto}
@@ -277,7 +338,7 @@ function NoleggioManageModal({ auto, onClose, onRimuovi, onConfermato }) {
           }}
         />
       )}
-    </Modal>
+    </>
   )
 }
 
@@ -496,9 +557,9 @@ function AdminPrestiti() {
               modules={[Navigation]}
               slidesPerView={2}
               spaceBetween={12}
-              loop={candidati.length > 4}
-              navigation={candidati.length > 4}
-              breakpoints={{ 992: { slidesPerView: 4 } }}
+              loop={candidati.length > AUTO_PER_RIGA}
+              navigation={candidati.length > AUTO_PER_RIGA}
+              breakpoints={{ 992: { slidesPerView: AUTO_PER_RIGA } }}
               className="card-carousel"
             >
               {candidati.map((auto) => (

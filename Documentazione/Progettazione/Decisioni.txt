@@ -1,0 +1,144 @@
+Decisioni prese durante lo sviluppo:
+
+Autenticazione password + OTP:
+
+    Il login è a due passi: prima email e password, poi un codice OTP a 6 cifre spedito via
+    email che completa l'accesso. La prima versione era passwordless (solo OTP), poi si è
+    deciso di tornare alla password perché il progetto richiede anche altri dati anagrafici
+    all'iscrizione (username, cognome, indirizzo) e un accesso di sola email senza nulla da
+    ricordare aveva senso quando l'iscrizione era minima, con un modulo più ricco la password
+    torna a essere il modo più naturale di autenticarsi, con l'OTP sopra come secondo fattore.
+    Due entità separate per i due meccanismi di conferma/accesso (RegistrationToken per il
+    link di registrazione, LoginOtp per il codice di login): non sono alternativi ma
+    sequenziali, il link registra una volta sola, l'OTP interviene a ogni accesso dopo che la
+    password è già stata verificata.
+    Un login con email inesistente e uno con password sbagliata rispondono con lo stesso
+    errore generico: distinguerli lascerebbe capire dall'esterno quali indirizzi sono
+    registrati.
+
+Un solo admin:
+
+    Nessuna registrazione admin: l'account amministratore è creato via seed all'avvio, con
+    password propria (verificata) e i dati della società fissi nel codice (SicLuxuryCars,
+    Via Appia Nuova 194, Roma, CAP 00183) perché sono un fatto di questo progetto, non un
+    parametro che cambia da un deploy all'altro.
+    Chi si registra dal sito è sempre un utente normale, il ruolo non è mai un campo che
+    arriva dal client.
+
+Dati di profilo:
+
+    Username, indirizzo, città, cap e società sono campi solo anagrafici: nessuna logica del
+    progetto li legge, servono solo a essere mostrati e modificati sul profilo. Società è
+    nullable e in pratica la valorizza solo l'admin: un utente normale non ha motivo di
+    comprare a nome di un'azienda in questo progetto, ma il campo resta aperto a chiunque
+    voglia comunque compilarlo.
+
+Id e timestamp:
+
+    Long autoincrementale per tutte le entità tranne RegistrationToken, il cui id finisce
+    nell'URL del link di conferma e quindi non deve essere indovinabile.
+    Foto è tornata a id autoincrementale dopo l'integrazione con auto.dev: quando serviva
+    ancora byte da disco l'id doveva essere imprevedibile, ora è solo un link esterno alla
+    CDN di auto.dev, non c'è più un percorso nostro da proteggere.
+    Instant per tutti i timestamp, sempre UTC: il fuso orario lato server non serve qui.
+
+Avviso di prezzo, quando riparte la mail:
+
+    Un preferito con soglia impostata manda una mail sola quando il prezzo scende sotto
+    quella soglia. Se dopo l'invio il prezzo risale e poi riscende di nuovo, non parte
+    una seconda mail per la stessa soglia: prezzo_inviato resta true finché la soglia non
+    cambia.
+    Cambiare la soglia però resetta prezzo_inviato a false: l'utente ha impostato un nuovo
+    valore da sorvegliare, è un avviso diverso anche se la riga è la stessa. Lo stesso vale
+    per disponibilita_inviata quando la notifica di disponibilità viene riattivata dopo che
+    l'utente l'aveva disattivata.
+    Il segno di invio si aggiorna con un UPDATE condizionato sulla stessa colonna che si
+    controlla (WHERE prezzo_inviato = false), non con una lettura e una scrittura separate:
+    due modifiche di prezzo ravvicinate altrimenti possono mandare due mail per lo stesso
+    avviso.
+
+Preferiti e notifiche in un'unica tabella:
+
+    Preferito porta sia la soglia di prezzo sia il flag di notifica disponibilità, invece
+    di tre tabelle separate. Un utente imposta entrambe le notifiche solo su un'auto che ha
+    già messo tra i preferiti, mai prima: tenerle nella stessa riga evita un join in più su
+    ogni query che le riguarda, ed evita anche di dover tenere sincronizzate righe che
+    esistono sempre in coppia.
+
+Storico prezzi:
+
+    Ogni cambio di prezzo fatto dall'admin viene registrato in StoricoPrezzo con il valore
+    precedente e quello nuovo. Niente confronto con un servizio esterno di mercato per un
+    indice di prezzo: per il catalogo di auto di lusso non esiste un'API paragonabile a
+    Keepa che sia gratuita o stabile per la durata del progetto (Hagerty non ha un'API
+    pubblica, MarketCheck ha un prezzo enterprise, CarsXE e Vehicle Databases offrono solo
+    un trial di 7 giorni e lavorano su dati soprattutto nordamericani). Lo storico dei
+    prezzi resta quindi solo quello generato dai dati del catalogo.
+
+Dati tecnici e foto da auto.dev:
+
+    Marca, modello, anno, specifiche tecniche e foto di ogni auto arrivano da auto.dev
+    interrogata col VIN, non li scrive né li carica l'admin. Era stata proposta anche
+    auto-data.net per le specifiche, ma il suo accesso è solo a preventivo (si paga per i
+    singoli parametri scelti, via contatto commerciale) e non ha un'API key ottenibile in
+    autonomia: auto-data.net è stata scartata, auto.dev da sola copre sia le specifiche
+    (GET /specs/{vin}) sia le foto (GET /photos/{vin}) con un piano gratuito reale (1000
+    chiamate al mese, nessuna carta richiesta).
+    Perché il VIN e non marca/modello/anno inseriti a mano: auto.dev interroga solo per
+    VIN, e in un concessionario vero ogni auto ha comunque un VIN proprio da cui partire.
+    Le specifiche tecniche restano nel database come JSON grezzo (120+ parametri in gruppi
+    come motore, sicurezza, consumi): modellarle in colonne relazionali sarebbe lavoro speso
+    su dati che nessuna query di questo progetto deve filtrare, il frontend legge dal JSON
+    solo quello che le serve mostrare.
+    Auto.dev viene interrogata una sola volta, alla creazione dell'auto: specifiche e foto
+    restano poi nel nostro database. Interrogarla a ogni apertura della scheda auto
+    esaurirebbe le 1000 chiamate mensili gratuite con pochi visitatori e legherebbe la
+    disponibilità del catalogo all'uptime di un servizio terzo che non controlliamo.
+    L'upload manuale delle foto (multipart, validazione byte, storage su disco) è stato
+    tolto: le foto sono sempre e solo quelle che auto.dev restituisce per quel VIN, un
+    secondo canale di caricamento sarebbe stato codice per un caso che in pratica non si
+    presenta più.
+    Il VIN è immutabile dopo la creazione: cambiarlo vorrebbe dire cambiare l'auto stessa,
+    non aggiornarne i dati, quindi PUT /api/admin/auto/{id} non lo accetta più in ingresso.
+
+Notifica di disponibilità:
+
+    Segnala quando un'auto nei preferiti smette di essere disponibile (rimossa dal
+    catalogo o segnata venduta), non il contrario. Chi vuole tornare a vederla ricontrolla
+    il catalogo, non serve un avviso sul ritorno.
+
+Email:
+
+    Invio via Resend (SDK ufficiale Java), non SMTP: nessuna connessione da tenere aperta
+    durante l'invio, adatto a un piano gratuito su Render dove un thread bloccato sull'SMTP
+    costerebbe di più. SMTP resta configurato in variabile d'ambiente ma non è il canale
+    usato.
+    Template con Thymeleaf, che fa l'escape di ogni valore inserito: il nome utente che
+    finisce nella mail è sempre testo, mai HTML non filtrato.
+    L'evento di cambio prezzo o disponibilità si pubblica solo dopo il commit della
+    transazione (@TransactionalEventListener(phase = AFTER_COMMIT)) e l'invio è asincrono
+    (@Async): se il salvataggio dell'auto fallisce non parte nessuna mail, e la richiesta
+    dell'admin non aspetta la risposta di Resend per completarsi.
+    Un fallimento di invio viene solo loggato, non risale alla richiesta che l'ha generato:
+    l'admin ha già ricevuto conferma che l'auto è stata salvata, un problema di consegna
+    email successivo non deve trasformarsi in un errore sulla sua richiesta.
+
+Sicurezza sui dati in ingresso:
+
+    Il campo su cui ordinare il catalogo arriva dal client e si confronta con un elenco
+    chiuso di valori ammessi, mai concatenato in una query.
+    Preferiti e avvisi si cercano sempre per id e proprietario insieme: un id che non
+    appartiene al chiamante restituisce 404, non 403, perché il chiamante non deve neanche
+    sapere che quella riga esiste.
+    Il link di disiscrizione dalla mail porta un token casuale e monouso, mai l'id della
+    riga: due token distinti per prezzo e disponibilità, disattivare l'uno non tocca l'altro.
+    Registrazione, login e aggiornamento preferiti ricevono sempre un DTO: ruolo, inviato e
+    ogni altro campo che il client non deve poter scrivere restano fuori dal corpo accettato.
+
+Extra rimandati a dopo l'obbligatorio:
+
+    Rate limit su login e OTP con Bucket4j (429 e Retry-After sui tentativi ripetuti),
+    conferma email prima che gli avvisi si attivino, MAPPA.md generata dai controller,
+    GitHub Action per compilare e testare a ogni pull request, refresh token a rotazione.
+    Nessuno di questi tocca lo schema delle entità già decise sopra, si aggiungono quando
+    il resto funziona.

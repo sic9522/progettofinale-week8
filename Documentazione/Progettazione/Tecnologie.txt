@@ -1,0 +1,36 @@
+Librerie e tecnologie usate:
+
+Backend:
+
+    Spring Boot (data-jpa, security, validation, webmvc) - ossatura dell'API REST
+    PostgreSQL - database
+    Lombok - getter/setter/costruttori senza scriverli ovunque a mano (i costruttori restano scritti a mano, mai @AllArgsConstructor)
+    JJWT - generazione e validazione dei JWT emessi dopo la verifica dell'OTP
+    Resend Java SDK (com.resend:resend-java) - invio email, non chiamate HTTP scritte a mano
+    Thymeleaf - template delle email (conferma registrazione, codice OTP, avvisi di prezzo e disponibilità)
+    Spring RestClient + spring-boot-starter-json - chiamate a auto.dev (specifiche e foto per VIN)
+    Bucket4j - rate limit su login/OTP, quando si arriva a quella fase (extra opzionale)
+
+Frontend:
+
+    React + Vite - l'app (stack già presente nel progetto)
+    Bootstrap 5 / react-bootstrap - componenti e stile di base
+    react-router-dom - le pagine
+    axios - chiamate all'API
+
+Perché queste e non altre:
+ Resend al posto di SMTP: una chiamata HTTP verso l'API non tiene occupato un thread per la
+durata della connessione, a differenza di una sessione SMTP - una differenza che conta su un
+piano gratuito con poche risorse. SMTP resta configurato in variabile d'ambiente come
+alternativa, ma il codice chiama solo Resend.
+ Nessuna API esterna di mercato per il confronto prezzi: quella tipo Keepa che si voleva usare
+non esiste per le auto in una forma gratuita o abbastanza stabile da reggere oltre un trial di
+sette giorni (vedi Decisioni.txt). Lo storico prezzi resta generato dai dati propri del
+catalogo.
+ Auto.dev al posto di auto-data.net per marca/modello/specifiche/foto: auto-data.net vende
+l'accesso a preventivo (nessuna API key self-service), auto.dev ha un piano gratuito reale e
+copre da sola sia le specifiche sia le foto con la stessa chiave, entrambe per VIN.
+ Dove Spring Boot ha già uno starter pronto (data-jpa, security, validation) lo si usa invece
+di scrivere la parte a mano. Stesso discorso per l'invio email: l'SDK ufficiale di Resend
+gestisce autenticazione e formato della richiesta, scriverlo a mano aggiungerebbe solo codice
+da mantenere.

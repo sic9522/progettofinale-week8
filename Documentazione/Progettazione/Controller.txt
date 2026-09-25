@@ -1,0 +1,53 @@
+Creazione controller:
+
+AuthController:
+
+    POST /auth/register - email, username, nome, cognome, password: crea l'utente non
+        verificato, spedisce il link di conferma
+    GET /auth/confirm - conferma via link (token in query), attiva l'account
+    POST /auth/login - email + password: se combaciano ed è verified, spedisce il codice OTP
+    POST /auth/login/verifica-otp - email + codice, restituisce il JWT se il codice è valido
+
+UserController:
+
+    GET /api/user/me - dati dell'utente autenticato (ruolo compreso, serve al frontend per
+        sapere se mostrare il pannello admin)
+
+AutoController:
+
+    GET /api/auto - catalogo pubblico, solo le PUBBLICATE. Ricerca e ordinamento opzionali
+    GET /api/auto/{id} - dettaglio pubblico: dati auto, specifiche, foto, storico prezzi
+    POST /api/auto/{id}/preferiti - aggiunge ai preferiti (utente autenticato)
+
+AdminAutoController:
+
+    GET /api/admin/auto - lista completa, comprese le bozze e il prezzo di acquisto
+    POST /api/admin/auto - VIN + prezzo + prezzo di acquisto + stato + descrizione
+        facoltativa: marca/modello/anno/specifiche/foto arrivano da auto.dev tramite il VIN
+    PUT /api/admin/auto/{id} - modifica descrizione/prezzo/prezzo di acquisto/stato (il VIN
+        non si tocca più); se il prezzo cambia, registra lo storico e pubblica l'evento che
+        gli avvisi ascoltano
+    DELETE /api/admin/auto/{id} - segna venduta/rimossa, pubblica l'evento di disponibilità
+
+PreferitoController:
+
+    GET /api/preferiti - i preferiti dell'utente autenticato
+    PATCH /api/preferiti/{id} - aggiorna soglia di prezzo e/o notifica di disponibilità
+    DELETE /api/preferiti/{id} - rimuove dai preferiti
+    GET /api/preferiti/disiscrivi/prezzo - link dalla mail: token in query (mai l'id),
+        disattiva solo l'avviso di prezzo
+    GET /api/preferiti/disiscrivi/disponibilita - stesso meccanismo, disattiva solo la
+        notifica di disponibilità (token diverso da quello del prezzo)
+
+Prompt:
+ Genera i controller (nomi sopra) con questi endpoint. Non restituire mai le entity così
+come sono, sempre un DTO. Gli errori vanno sull'ErrorHandler che c'è già, non crearne un
+altro. Il campo su cui ordinare il catalogo arriva dal client e va confrontato con un
+elenco chiuso di valori ammessi, mai concatenato in una query. Cambiare il prezzo o
+qualunque altro campo di un'auto spetta solo all'admin: un utente autenticato che prova un
+endpoint di AdminAutoController riceve 403. Un preferito o un'auto raggiunti con un id che
+non appartiene al chiamante restituiscono 404, non 403 - il chiamante non deve sapere che
+esiste. Registrazione, login e aggiornamento preferiti ricevono sempre un DTO, mai un
+campo come ruolo o inviato scrivibile dal corpo della richiesta. Un login con email
+inesistente e uno con password sbagliata rispondono con lo stesso errore: non deve essere
+possibile capire da fuori quali email sono registrate.

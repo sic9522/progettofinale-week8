@@ -1,0 +1,90 @@
+Creazione entità:
+
+User:
+
+    id - long autoincrementale
+    email - string, unica
+    username - string, unica
+    nome - string
+    cognome - string
+    password - string, hash bcrypt
+    indirizzo - string, nullable (solo anagrafico)
+    citta - string, nullable (solo anagrafico)
+    cap - string, nullable (solo anagrafico)
+    societa - string, nullable (in pratica lo valorizza solo l'admin)
+    ruolo - enum USER / ADMIN, assegnato dal server (un solo ADMIN, creato via seed con società/indirizzo fissi, nessuna registrazione admin)
+    verified - boolean, default false (finché non conferma la registrazione via link)
+    created_at - Instant
+
+RegistrationToken:
+
+    id - uuid, è il token del link di conferma nell'email di registrazione
+    user - User (N:1)
+    created_at / expire_at - Instant, scade 15 minuti dopo la creazione
+    used - boolean, default false
+
+LoginOtp:
+
+    id - long autoincrementale
+    user - User (N:1)
+    codice - string a 6 cifre, è il codice inviato via email per accedere
+    created_at / expire_at - Instant, scade 10 minuti dopo la creazione
+    used - boolean, default false
+
+Auto:
+
+    id - long autoincrementale
+    vin - string, unico, identifica l'auto fisica su auto.dev, immutabile dopo la creazione
+    marca - string, arriva dal decode auto.dev del VIN, non la scrive l'admin
+    modello - string, idem
+    anno - int, idem
+    descrizione - string, nullable (testo libero facoltativo dell'admin)
+    specifiche_json - text, nullable (risposta grezza di auto.dev con motore/consumi/sicurezza/eccetera)
+    prezzo - decimal, visibile a tutti
+    prezzo_acquisto - decimal, visibile solo all'admin
+    stato - enum BOZZA / PUBBLICATA / VENDUTA (le bozze le vede solo l'admin)
+    created_at / updated_at - Instant
+
+Foto:
+
+    id - long autoincrementale
+    auto - Auto (N:1)
+    url - string, link diretto alla CDN di auto.dev (nessun file salvato da noi)
+    ordine - int (la prima per ordine è la copertina)
+    created_at - Instant
+
+StoricoPrezzo:
+
+    id - long autoincrementale
+    auto - Auto (N:1)
+    prezzo_precedente - decimal
+    prezzo_nuovo - decimal
+    cambiato_at - Instant
+
+Preferito:
+
+    id - long autoincrementale
+    user - User (N:1)
+    auto - Auto (N:1)
+    unico (user, auto): un utente ha un solo preferito per auto
+    soglia_prezzo - decimal, nullable (null = nessun avviso di prezzo attivo su questo preferito)
+    prezzo_inviato - boolean, default false
+    notifica_disponibilita - boolean, default true
+    disponibilita_inviata - boolean, default false
+    token_disiscrizione_prezzo - uuid
+    token_disiscrizione_disponibilita - uuid
+    created_at / updated_at - Instant
+
+Prompt:
+ Genera le entità (vedi nomi sopra) con le colonne elencate. Il login è a due passi: prima
+email e password, poi un codice OTP inviato via email che completa l'accesso (due entità
+separate, RegistrationToken per il link di registrazione e LoginOtp per il codice di
+login, non una sola come nel progetto precedente perché qui i due meccanismi non sono
+alternativi ma sequenziali e servono a due fasi diverse). Foto ha id autoincrementale, non
+più uuid come nella prima versione: le sue immagini sono link esterni alla CDN di auto.dev,
+non file serviti da noi, quindi non c'è più un percorso costruito sul suo id da proteggere.
+RegistrationToken resta uuid perché il suo id finisce comunque nell'URL del link di conferma.
+Preferito accorpa avviso di prezzo e notifica di disponibilità nella stessa riga invece di
+tre tabelle separate: un utente imposta entrambe le notifiche solo su un'auto che ha già
+messo tra i preferiti, non prima. I costruttori restano scritti a mano, niente
+@AllArgsConstructor.

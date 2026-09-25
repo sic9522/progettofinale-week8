@@ -1,0 +1,71 @@
+Creazione service:
+
+UserService:
+
+    registra l'utente (email, username, nome, cognome, password con hash bcrypt), non fa
+    auto-login
+    login in due passi: verifica email+password (solo se l'account è verified), poi fa
+    generare l'OTP a LoginOtpService; email inesistente e password sbagliata danno lo
+    stesso errore
+
+RegistrationTokenService:
+
+    genera il token del link di conferma, spedisce l'email
+    conferma via link con controllo di scadenza (15 minuti)
+
+LoginOtpService:
+
+    genera il codice a 6 cifre, lo spedisce via email, invalida i codici precedenti non usati
+    dello stesso utente quando ne genera uno nuovo
+    verifica il codice: corrisponde, non è scaduto (10 minuti), non è già stato usato
+
+AutoService:
+
+    alla creazione: chiama AutoDevClient col VIN, riceve marca/modello/anno/specifiche e le
+    foto, le salva insieme a prezzo/prezzo di acquisto/stato/descrizione decisi dall'admin -
+    una sola chiamata, non a ogni lettura successiva
+    modifica, elenca e mostra il dettaglio di un'auto (la modifica non tocca più VIN,
+    marca, modello, anno, specifiche o foto: quelli restano quelli presi alla creazione)
+    quando il prezzo cambia rispetto al valore salvato: scrive una riga in StoricoPrezzo,
+    poi pubblica un evento di cambio prezzo (l'invio della mail è un altro servizio, non
+    questo: AutoService non deve sapere che esistono gli avvisi)
+    quando un'auto viene segnata venduta/rimossa: pubblica un evento di disponibilità
+
+AutoDevClient:
+
+    chiama GET /specs/{vin} e GET /photos/{vin} di auto.dev con la stessa API key
+    se il VIN non ha dati su auto.dev, l'errore diventa un BadRequestException leggibile,
+    non una RestClientResponseException scoperta a metà su un servizio esterno
+
+PreferitoService:
+
+    aggiunge/rimuove un'auto dai preferiti, aggiorna soglia e notifica di disponibilità
+    quando la soglia di prezzo viene modificata: resetta prezzo_inviato a false, è un nuovo
+    valore da sorvegliare, non lo stesso avviso di prima
+    disiscrizione via token: cerca la riga per token (mai per id), disattiva solo quella
+    notifica (prezzo o disponibilità, sono due token distinti)
+
+AvvisoListener (ascolta gli eventi pubblicati da AutoService):
+
+    @TransactionalEventListener(phase = AFTER_COMMIT) + @Async: se il salvataggio dell'auto
+    fallisce non deve partire nessuna mail, e l'admin non deve aspettare l'invio per avere
+    la risposta HTTP
+    sul cambio di prezzo: trova i preferiti con soglia_prezzo >= nuovo prezzo (prima era
+    sopra o assente il confronto, non serve saperlo qui, lo garantisce la query) e
+    prezzo_inviato = false, manda la mail, segna inviato con un UPDATE condizionato
+    (WHERE prezzo_inviato = false) così due eventi ravvicinati non mandano due mail
+    sul cambio di disponibilità: stessa logica su disponibilita_inviata
+
+EmailService:
+
+    invia via Resend (SDK ufficiale, non chiamate HTTP scritte a mano), template Thymeleaf
+    sempre asincrono, un fallimento di invio viene solo loggato, non risale al chiamante
+
+Prompt:
+ Genera i service per autenticazione password + OTP, catalogo auto con storico prezzi, preferiti
+con doppia notifica (soglia di prezzo e disponibilità) e invio email via evento dopo il
+commit. L'evento si pubblica solo se il salvataggio è andato a buon fine, l'invio non deve
+mai bloccare la richiesta che l'ha generato. Il segno di "già inviato" si aggiorna con un
+UPDATE condizionato sulla stessa colonna che si controlla, non con una lettura seguita da
+una scrittura separata, altrimenti due richieste quasi simultanee mandano due mail per lo
+stesso avviso.

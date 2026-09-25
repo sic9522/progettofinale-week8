@@ -1,6 +1,41 @@
 spring.application.name=progetto-finale-week8
+
+# Su Render DATABASE_URL viene tradotta da DatabaseUrl e sovrascrive le tre proprieta' sotto
 spring.datasource.url=jdbc:postgresql://localhost:5432/progetto_finale_week8
 spring.datasource.username=${POSTGRES}
 spring.datasource.password=${POSTGRES_PASSWORD}
+
 spring.jpa.hibernate.ddl-auto=update
+
 jwt.secret=${JWT}
+
+# In produzione: ALLOWED_ORIGIN=https://<fe>.onrender.com (piu' valori separati da virgola)
+app.cors.allowed-origins=${ALLOWED_ORIGIN:http://localhost:5173}
+
+# Paginazione: limite massimo di elementi per pagina
+spring.data.web.pageable.max-page-size=100
+
+# Render assegna la porta in PORT
+server.port=${PORT:8080}
+server.shutdown=graceful
+
+# Health check per Render
+management.endpoints.web.exposure.include=health
+management.endpoint.health.probes.enabled=true
+
+# Email via Resend
+resend.api-key=${RESEND_API_KEY}
+app.mail.mittente=${MAIL_MITTENTE:Salone Auto <onboarding@resend.dev>}
+
+# Base URL del frontend: usata nei link delle email (conferma, avvisi, disiscrizione)
+app.frontend-url=${FRONTEND_URL:http://localhost:5173}
+
+# Unico admin, creato all'avvio se non esiste (societa'/indirizzo/citta/cap fissi nel codice)
+app.admin.email=${ADMIN_EMAIL:admin@example.com}
+app.admin.username=${ADMIN_USERNAME:admin}
+app.admin.nome=${ADMIN_NOME:Admin}
+app.admin.cognome=${ADMIN_COGNOME:Admin}
+app.admin.password=${ADMIN_PASSWORD}
+
+# auto.dev: marca/modello/anno/specifiche tecniche e foto, entrambe per VIN (vedi Decisioni.txt)
+autodev.api-key=${AUTODEV_API_KEY}

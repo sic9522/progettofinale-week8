@@ -1,0 +1,75 @@
+# Blueprint Render: database + backend + frontend.
+# Su Render: New > Blueprint > repository > Apply.
+
+databases:
+  - name: pfw8-db
+    databaseName: pfw8
+    user: pfw8
+    plan: free
+    region: frankfurt
+
+services:
+  # ---------- Backend: Spring Boot via Docker ----------
+  - type: web
+    name: pfw8-be
+    runtime: docker
+    plan: free
+    region: frankfurt
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /actuator/health
+    buildFilter:
+      paths:
+        - backend/**
+        - render.yaml
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: pfw8-db
+          property: connectionString
+      # Origine del FE per il CORS, es. https://pfw8-fe.onrender.com
+      - key: ALLOWED_ORIGIN
+        sync: false
+      # Firma dei JWT: Render genera un valore casuale.
+      - key: JWT
+        generateValue: true
+      # Base URL del FE: usata nei link delle email (conferma, avvisi, disiscrizione)
+      - key: FRONTEND_URL
+        sync: false
+      # Invio email
+      - key: RESEND_API_KEY
+        sync: false
+      # Unico admin, creato all'avvio se non esiste
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_USERNAME
+        sync: false
+      - key: ADMIN_NOME
+        sync: false
+      - key: ADMIN_COGNOME
+        sync: false
+      - key: ADMIN_PASSWORD
+        generateValue: true
+      # Specifiche tecniche e foto per VIN
+      - key: AUTODEV_API_KEY
+        sync: false
+
+  # ---------- Frontend: build Vite statica ----------
+  - type: web
+    name: pfw8-fe
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: ./dist
+    buildFilter:
+      paths:
+        - frontend/**
+        - render.yaml
+    envVars:
+      # Indirizzo del BE, es. https://pfw8-be.onrender.com (senza / finale)
+      - key: VITE_API_URL
+        sync: false
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

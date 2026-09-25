@@ -1,0 +1,14 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "montserrat",
+        "createdAt": "2026-09-25T14:39:23.015Z",
+        "reason": "Claude: stessa eccezione, variante minuscola dell'URL Google Fonts"
+      }
+    ]
+  }
+}

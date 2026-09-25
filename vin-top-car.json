@@ -1,0 +1,65 @@
+[
+  {
+    "slug": "ferrari",
+    "marca": "Ferrari",
+    "modello": "FF",
+    "vin": "ZFF73SKA7F0209964",
+    "foto": 31,
+    "usato": true,
+    "fonte": "https://carsandbids.com/auctions/KDOqAXVp/2015-ferrari-ff"
+  },
+  {
+    "slug": "lamborghini",
+    "marca": "Lamborghini",
+    "modello": "Huracan EVO",
+    "vin": "ZHWUF4ZF4NLA19021",
+    "foto": 115,
+    "usato": true,
+    "fonte": "https://carsandbids.com/auctions/98qp6Y7X/2022-lamborghini-huracan-evo-fluo-capsule-coupe"
+  },
+  {
+    "slug": "aston-martin",
+    "marca": "Aston Martin",
+    "modello": "DB11",
+    "vin": "SCFRMFCW1KGM05987",
+    "foto": 49,
+    "usato": true,
+    "fonte": "https://www.hagerty.com/valuation-tools/past-sales/2020-Aston%20Martin-DB11/SCFRMFCW1KGM05987"
+  },
+  {
+    "slug": "bmw",
+    "marca": "BMW",
+    "modello": "M5 CS",
+    "vin": "WBS73CH09NCH29627",
+    "foto": 35,
+    "usato": true,
+    "fonte": "https://www.classic.com/veh/2022-bmw-m5-cs-wbs73ch09nch29627-Wbbg6DW/"
+  },
+  {
+    "slug": "bentley",
+    "marca": "Bentley",
+    "modello": null,
+    "vin": null,
+    "foto": 0,
+    "usato": false,
+    "note": "nessuna foto trovata su auto.dev dopo 19 VIN reali provati (Continental GT, Flying Spur, Bentayga, Azure, Turbo R, Arnage) - marchio non coperto"
+  },
+  {
+    "slug": "audi",
+    "marca": "Audi",
+    "modello": "R8",
+    "vin": "WUAAU342X8N002927",
+    "foto": 72,
+    "usato": true,
+    "fonte": "https://www.classic.com/veh/2008-audi-r8-v8-wuaau342x8n002927-4aK1egW/"
+  },
+  {
+    "slug": "mercedes",
+    "marca": "Mercedes-AMG",
+    "modello": "GT63 S",
+    "vin": "W1K7X8KBXPA057937",
+    "foto": 89,
+    "usato": true,
+    "fonte": "https://carsandbids.com/auctions/30OEzwRj/2023-mercedes-amg-gt63-s-4-door"
+  }
+]

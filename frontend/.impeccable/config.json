@@ -1,0 +1,14 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "montserrat",
+        "createdAt": "2026-09-25T08:44:15.713Z",
+        "reason": "scelta intenzionale: pairing Cormorant/Montserrat da ui-ux-pro-max --design-system per profilo Luxury/Premium Brand, Montserrat usato come font neutro per corpo/UI, la personalita del brand la porta Cormorant sui titoli"
+      }
+    ]
+  }
+}

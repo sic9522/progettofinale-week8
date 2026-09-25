@@ -1,15 +1,104 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head><meta charset="UTF-8"></head>
+<html xmlns:th="http://www.thymeleaf.org"
+	th:replace="~{email/layout :: pagina('Il tuo noleggio è confermato', 'Il tuo noleggio è attivo: ecco tutti i dettagli.', ~{::#contenuto})}">
 <body>
-	<p>Ciao <span th:text="${nome}">nome</span>,</p>
-	<p>il tuo noleggio è confermato per <strong th:text="${marca} + ' ' + ${modello}">auto</strong>:</p>
-	<ul>
-		<li>Durata: <span th:text="${mesi}">24</span> mesi</li>
-		<li>Anticipo: <span th:text="${anticipo}">0</span> €</li>
-		<li>Rata mensile: <span th:text="${rata}">0</span> €/mese</li>
-	</ul>
-	<p><a th:href="${link}" th:text="${link}">link</a></p>
-	<p>Per qualsiasi informazione, rispondi pure a questa email.</p>
+<div id="contenuto">
+	<p style="margin:0 0 6px;font-size:11px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#a16207;">Avvio noleggio</p>
+	<h1 style="margin:0 0 20px;font-family:'Cormorant',Georgia,serif;font-style:italic;font-weight:700;font-size:32px;line-height:1.15;color:#1c1917;">
+		Le chiavi sono tue, <span th:text="${nome}">nome</span>
+	</h1>
+	<p style="margin:0 0 24px;">
+		Il tuo noleggio &egrave; confermato e attivo da oggi. Qui sotto trovi il riepilogo del contratto
+		e tutte le caratteristiche della tua auto.
+	</p>
+
+	<!--/* auto */-->
+	<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+		style="margin:0 0 28px;border:1px solid #e7e0d4;border-radius:14px;overflow:hidden;">
+		<tr th:if="${foto}">
+			<td style="line-height:0;font-size:0;">
+				<img th:src="${foto}" th:alt="${marca + ' ' + modello}" alt="" width="526" style="display:block;width:100%;max-width:526px;height:auto;border:0;">
+			</td>
+		</tr>
+		<tr>
+			<td style="padding:18px 22px;background-color:#1c1917;">
+				<div style="font-family:'Cormorant',Georgia,serif;font-style:italic;font-weight:700;font-size:26px;color:#ffffff;" th:text="${marca}">Marca</div>
+				<div style="font-size:13px;color:#d4af37;">
+					<span th:text="${modello}">Modello</span> &middot; <span th:text="${anno}">2024</span>
+				</div>
+			</td>
+		</tr>
+	</table>
+
+	<!--/* riepilogo contratto */-->
+	<p style="margin:0 0 10px;font-size:11px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#a16207;">Il tuo contratto</p>
+	<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 28px;font-size:14px;">
+		<tr>
+			<td style="padding:10px 0;border-bottom:1px solid #eee8dd;color:#78716c;">Durata</td>
+			<td align="right" style="padding:10px 0;border-bottom:1px solid #eee8dd;font-weight:600;color:#1c1917;" th:text="${mesi} + ' mesi'">24 mesi</td>
+		</tr>
+		<tr>
+			<td style="padding:10px 0;border-bottom:1px solid #eee8dd;color:#78716c;">Periodo</td>
+			<td align="right" style="padding:10px 0;border-bottom:1px solid #eee8dd;font-weight:600;color:#1c1917;"
+				th:text="${dataInizio} + ' – ' + ${dataFine}">01/01/2026 – 01/01/2028</td>
+		</tr>
+		<tr>
+			<td style="padding:10px 0;border-bottom:1px solid #eee8dd;color:#78716c;">Prezzo di listino</td>
+			<td align="right" style="padding:10px 0;border-bottom:1px solid #eee8dd;font-weight:600;color:#1c1917;"
+				th:text="${#numbers.formatDecimal(prezzoListino, 1, 'POINT', 0, 'COMMA')} + ' €'">0 €</td>
+		</tr>
+		<tr th:if="${sconto}">
+			<td style="padding:10px 0;border-bottom:1px solid #eee8dd;color:#78716c;">Sconto applicato</td>
+			<td align="right" style="padding:10px 0;border-bottom:1px solid #eee8dd;font-weight:600;color:#c81e1e;" th:text="'-' + ${sconto} + '%'">-10%</td>
+		</tr>
+		<tr>
+			<td style="padding:10px 0;border-bottom:1px solid #eee8dd;color:#78716c;">Anticipo</td>
+			<td align="right" style="padding:10px 0;border-bottom:1px solid #eee8dd;font-weight:600;color:#1c1917;"
+				th:text="${#numbers.formatDecimal(anticipo, 1, 'POINT', 0, 'COMMA')} + ' €'">0 €</td>
+		</tr>
+		<tr>
+			<td style="padding:10px 0;border-bottom:1px solid #eee8dd;color:#78716c;">Totale del contratto</td>
+			<td align="right" style="padding:10px 0;border-bottom:1px solid #eee8dd;font-weight:600;color:#1c1917;"
+				th:text="${#numbers.formatDecimal(totale, 1, 'POINT', 0, 'COMMA')} + ' €'">0 €</td>
+		</tr>
+		<tr>
+			<td colspan="2" style="padding:18px 0 0;">
+				<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+					<tr>
+						<td align="center" style="padding:18px;background-color:#faf6ee;border-radius:12px;">
+							<div style="font-size:11px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#78716c;">Rata mensile</div>
+							<div style="font-family:'Cormorant',Georgia,serif;font-style:italic;font-weight:700;font-size:40px;line-height:1.1;color:#a16207;"
+								th:text="${#numbers.formatDecimal(rata, 1, 'POINT', 2, 'COMMA')} + ' €'">0 €</div>
+							<div style="font-size:12px;color:#78716c;">senza interessi</div>
+						</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+	</table>
+
+	<!--/* caratteristiche tecniche */-->
+	<th:block th:if="${!caratteristiche.isEmpty()}">
+		<p style="margin:0 0 10px;font-size:11px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#a16207;">Caratteristiche</p>
+		<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 28px;font-size:14px;">
+			<tr th:each="c : ${caratteristiche}">
+				<td style="padding:9px 0;border-bottom:1px solid #eee8dd;color:#78716c;" th:text="${c.key}">Voce</td>
+				<td align="right" style="padding:9px 0;border-bottom:1px solid #eee8dd;font-weight:600;color:#1c1917;" th:text="${c.value}">Valore</td>
+			</tr>
+		</table>
+	</th:block>
+
+	<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 24px;">
+		<tr>
+			<td align="center" bgcolor="#d4af37" style="border-radius:999px;">
+				<a th:href="${link}" href="#" style="display:inline-block;padding:14px 34px;font-family:'Montserrat',Helvetica,Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#1c1917;text-decoration:none;border-radius:999px;">Vedi la tua auto</a>
+			</td>
+		</tr>
+	</table>
+
+	<p style="margin:0;font-size:13px;color:#57534e;">
+		Trovi il noleggio anche nel tuo profilo. Per qualsiasi necessit&agrave; rispondi pure a questa email.
+	</p>
+</div>
 </body>
 </html>

@@ -1,9 +1,25 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head><meta charset="UTF-8"></head>
+<html xmlns:th="http://www.thymeleaf.org"
+	th:replace="~{email/layout :: pagina('Il tuo noleggio è stato chiuso', 'Il tuo noleggio è stato chiuso in anticipo.', ~{::#contenuto})}">
 <body>
-	<p>Ciao <span th:text="${nome}">nome</span>,</p>
-	<p>ti informiamo che il noleggio di <strong th:text="${marca} + ' ' + ${modello}">auto</strong> è stato chiuso in anticipo.</p>
-	<p>Per qualsiasi informazione, rispondi pure a questa email.</p>
+<div id="contenuto">
+	<p style="margin:0 0 6px;font-size:11px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#a16207;">Comunicazione noleggio</p>
+	<h1 style="margin:0 0 20px;font-family:'Cormorant',Georgia,serif;font-style:italic;font-weight:700;font-size:32px;line-height:1.15;color:#1c1917;">
+		Gentile <span th:text="${nome}">nome</span>
+	</h1>
+	<p style="margin:0 0 24px;">
+		ti informiamo che il noleggio della tua
+		<strong style="color:#1c1917;" th:text="${marca} + ' ' + ${modello}">auto</strong>
+		&egrave; stato chiuso in anticipo.
+	</p>
+
+	<p style="margin:0 0 24px;padding:14px 18px;background-color:#faf6ee;border-left:3px solid #d4af37;border-radius:6px;font-size:13px;color:#57534e;">
+		Un nostro consulente ti contatter&agrave; per concordare la riconsegna e gli eventuali passaggi successivi.
+	</p>
+
+	<p style="margin:0;font-size:13px;color:#57534e;">
+		Per qualsiasi domanda rispondi pure a questa email: siamo a tua disposizione.
+	</p>
+</div>
 </body>
 </html>

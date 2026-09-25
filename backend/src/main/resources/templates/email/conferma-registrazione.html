@@ -1,10 +1,32 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head><meta charset="UTF-8"></head>
+<html xmlns:th="http://www.thymeleaf.org"
+	th:replace="~{email/layout :: pagina('Conferma la tua registrazione', 'Un ultimo passo: conferma il tuo indirizzo email.', ~{::#contenuto})}">
 <body>
-	<p>Ciao <span th:text="${nome}">nome</span>,</p>
-	<p>conferma la tua registrazione cliccando sul link qui sotto:</p>
-	<p><a th:href="${link}" th:text="${link}">link</a></p>
-	<p>Il link scade tra 15 minuti.</p>
+<div id="contenuto">
+	<p style="margin:0 0 6px;font-size:11px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#a16207;">Benvenuto a bordo</p>
+	<h1 style="margin:0 0 20px;font-family:'Cormorant',Georgia,serif;font-style:italic;font-weight:700;font-size:32px;line-height:1.15;color:#1c1917;">
+		Ciao <span th:text="${nome}">nome</span>, manca solo un passo
+	</h1>
+	<p style="margin:0 0 8px;">
+		Grazie per esserti registrato su SicLuxoryCars. Conferma il tuo indirizzo email per attivare
+		l'account e scoprire la nostra vetrina di auto selezionate una a una.
+	</p>
+
+	<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:30px 0;">
+		<tr>
+			<td align="center" bgcolor="#d4af37" style="border-radius:999px;">
+				<a th:href="${link}" href="#" style="display:inline-block;padding:15px 38px;font-family:'Montserrat',Helvetica,Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#1c1917;text-decoration:none;border-radius:999px;">Conferma account</a>
+			</td>
+		</tr>
+	</table>
+
+	<p style="margin:0 0 18px;padding:14px 18px;background-color:#faf6ee;border-left:3px solid #d4af37;border-radius:6px;font-size:13px;color:#57534e;">
+		Il link scade tra <strong style="color:#1c1917;">15 minuti</strong>. Se non hai creato tu l'account, ignora pure questa email.
+	</p>
+	<p style="margin:0;font-size:12px;color:#78716c;">
+		Il pulsante non funziona? Copia questo indirizzo nel browser:<br>
+		<a th:href="${link}" th:text="${link}" href="#" style="color:#a16207;word-break:break-all;">link</a>
+	</p>
+</div>
 </body>
 </html>

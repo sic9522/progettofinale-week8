@@ -1,10 +1,27 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head><meta charset="UTF-8"></head>
+<html xmlns:th="http://www.thymeleaf.org"
+	th:replace="~{email/layout :: pagina('Il tuo codice di accesso', 'Il tuo codice di accesso a SicLuxoryCars.', ~{::#contenuto})}">
 <body>
-	<p>Ciao <span th:text="${nome}">nome</span>,</p>
-	<p>il tuo codice di accesso è:</p>
-	<p style="font-size: 24px; font-weight: bold;" th:text="${codice}">000000</p>
-	<p>Il codice scade tra 10 minuti.</p>
+<div id="contenuto">
+	<p style="margin:0 0 6px;font-size:11px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#a16207;">Richiesta di accesso</p>
+	<h1 style="margin:0 0 20px;font-family:'Cormorant',Georgia,serif;font-style:italic;font-weight:700;font-size:32px;line-height:1.15;color:#1c1917;">
+		Bentornato, <span th:text="${nome}">nome</span>
+	</h1>
+	<p style="margin:0 0 24px;">Inserisci questo codice nella pagina di accesso per entrare nel tuo account:</p>
+
+	<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 24px;">
+		<tr>
+			<td align="center" style="padding:26px 16px;background-color:#1c1917;border-radius:14px;">
+				<div style="font-family:'Courier New',Courier,monospace;font-size:40px;font-weight:700;letter-spacing:14px;color:#d4af37;padding-left:14px;" th:text="${codice}">000000</div>
+				<div style="margin-top:8px;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#a8a29e;">Valido 10 minuti</div>
+			</td>
+		</tr>
+	</table>
+
+	<p style="margin:0;padding:14px 18px;background-color:#faf6ee;border-left:3px solid #d4af37;border-radius:6px;font-size:13px;color:#57534e;">
+		Non comunicare mai questo codice a nessuno, nemmeno a chi dice di essere del nostro staff.
+		Se non hai provato ad accedere tu, ti consigliamo di cambiare la password.
+	</p>
+</div>
 </body>
 </html>

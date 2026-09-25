@@ -1,7 +1,8 @@
 package com.example.progetto_finale_week8.controller;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,14 +35,11 @@ public class UserController {
 		return userService.me(CurrentUser.id());
 	}
 
-	// 204 se non ha nessun noleggio confermato attivo: il profilo mostra la sezione
-	// solo quando c'e' qualcosa da mostrare
+	// tutti i noleggi attivi del cliente (garage del profilo), lista vuota se nessuno
 	@PreAuthorize("isAuthenticated()")
-	@GetMapping("/noleggio")
-	public ResponseEntity<NoleggioClienteResponse> mioNoleggio() {
-		return noleggioClienteService.mioNoleggio(CurrentUser.id())
-			.map(ResponseEntity::ok)
-			.orElseGet(() -> ResponseEntity.noContent().build());
+	@GetMapping("/noleggi")
+	public List<NoleggioClienteResponse> mieiNoleggi() {
+		return noleggioClienteService.mieiNoleggi(CurrentUser.id());
 	}
 
 	// "elimina il mio account": cancella avvisi/preferiti, da quel momento non parte più

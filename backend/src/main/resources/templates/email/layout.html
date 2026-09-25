@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<!--/* Layout comune a tutte le email: ogni template sostituisce il proprio <html> con
+       questo frammento passando titolo, testo di anteprima e il blocco #contenuto.
+       Stili tutti inline e impaginazione a tabelle: e' l'unico modo per avere la
+       stessa resa in Gmail, Outlook e Apple Mail. Cormorant/Montserrat arrivano da
+       Google Fonts dove supportati, altrimenti Georgia/Helvetica */-->
+<html lang="it" xmlns:th="http://www.thymeleaf.org" th:fragment="pagina(titolo, anteprima, contenuto)">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="color-scheme" content="light">
+	<meta name="supported-color-schemes" content="light">
+	<title th:text="${titolo}">SicLuxoryCars</title>
+	<link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@1,600;1,700&amp;family=Montserrat:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+</head>
+<body style="margin:0;padding:0;background-color:#f4f1ec;-webkit-text-size-adjust:100%;">
+	<div style="display:none;max-height:0;overflow:hidden;opacity:0;mso-hide:all;" th:text="${anteprima}">anteprima</div>
+
+	<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f4f1ec;">
+		<tr>
+			<td align="center" style="padding:32px 12px;">
+				<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+					style="max-width:600px;background-color:#ffffff;border-radius:18px;overflow:hidden;box-shadow:0 8px 30px rgba(28,25,23,0.10);">
+
+					<tr>
+						<td align="center" style="background-color:#1c1917;padding:34px 32px 26px;">
+							<div style="font-family:'Cormorant',Georgia,'Times New Roman',serif;font-style:italic;font-weight:700;font-size:34px;line-height:1;color:#ffffff;letter-spacing:0.5px;">SicLuxoryCars</div>
+							<div style="margin-top:10px;font-family:'Montserrat',Helvetica,Arial,sans-serif;font-size:10px;font-weight:600;letter-spacing:4px;text-transform:uppercase;color:#d4af37;">Lusso &middot; Motori &middot; Velocit&agrave;</div>
+						</td>
+					</tr>
+					<tr>
+						<td style="height:3px;line-height:3px;font-size:0;background-color:#d4af37;">&nbsp;</td>
+					</tr>
+
+					<tr>
+						<td style="padding:40px 36px 36px;font-family:'Montserrat',Helvetica,Arial,sans-serif;font-size:15px;line-height:1.7;color:#292524;">
+							<div th:replace="${contenuto}">contenuto</div>
+						</td>
+					</tr>
+
+					<tr>
+						<td align="center" style="background-color:#1c1917;padding:26px 32px;font-family:'Montserrat',Helvetica,Arial,sans-serif;font-size:12px;line-height:1.7;color:#a8a29e;">
+							<div style="font-family:'Cormorant',Georgia,serif;font-style:italic;font-weight:600;font-size:20px;color:#ffffff;">SicLuxoryCars</div>
+							<div style="color:#d4af37;margin-bottom:8px;">Dal 1962, a tutta velocit&agrave;.</div>
+							Via dei Condotti 88, 00187 Roma &middot; info@sicluxorycars.it
+						</td>
+					</tr>
+				</table>
+
+				<p style="margin:18px 0 0;font-family:'Montserrat',Helvetica,Arial,sans-serif;font-size:11px;color:#a8a29e;">
+					Hai ricevuto questa email perch&eacute; hai un account su SicLuxoryCars.
+				</p>
+			</td>
+		</tr>
+	</table>
+</body>
+</html>

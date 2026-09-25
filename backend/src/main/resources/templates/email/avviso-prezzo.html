@@ -1,10 +1,46 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head><meta charset="UTF-8"></head>
+<html xmlns:th="http://www.thymeleaf.org"
+	th:replace="~{email/layout :: pagina('Il prezzo è sceso', 'Una delle auto tra i tuoi preferiti ha un nuovo prezzo.', ~{::#contenuto})}">
 <body>
-	<p>Il prezzo di <span th:text="${marca}">marca</span> <span th:text="${modello}">modello</span>
-		è sceso sotto la soglia che avevi impostato: ora è <span th:text="${prezzo}">0</span> €.</p>
-	<p><a th:href="${link}">Vedi l'annuncio</a></p>
-	<p><a th:href="${linkDisiscrizione}">Disattiva questo avviso di prezzo</a></p>
+<div id="contenuto">
+	<p style="margin:0 0 6px;font-size:11px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#c81e1e;">Avviso prezzo</p>
+	<h1 style="margin:0 0 20px;font-family:'Cormorant',Georgia,serif;font-style:italic;font-weight:700;font-size:32px;line-height:1.15;color:#1c1917;">
+		<span th:text="${nome}">nome</span>, il tuo sogno costa meno
+	</h1>
+	<p style="margin:0 0 24px;">
+		Un'auto che hai salvato tra i preferiti &egrave; scesa sotto la soglia di prezzo che avevi scelto.
+	</p>
+
+	<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+		style="margin:0 0 26px;border:1px solid #e7e0d4;border-radius:14px;overflow:hidden;">
+		<tr th:if="${foto}">
+			<td style="line-height:0;font-size:0;">
+				<img th:src="${foto}" th:alt="${marca + ' ' + modello}" alt="" width="526" style="display:block;width:100%;max-width:526px;height:auto;border:0;">
+			</td>
+		</tr>
+		<tr>
+			<td style="padding:18px 22px;background-color:#faf6ee;">
+				<div style="font-family:'Cormorant',Georgia,serif;font-style:italic;font-weight:700;font-size:24px;color:#1c1917;" th:text="${marca}">Marca</div>
+				<div style="font-size:13px;color:#78716c;" th:text="${modello}">Modello</div>
+				<div style="margin-top:12px;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#78716c;">Nuovo prezzo</div>
+				<div style="font-size:28px;font-weight:700;color:#c81e1e;"
+					th:text="${#numbers.formatDecimal(prezzo, 1, 'POINT', 0, 'COMMA')} + ' €'">0 €</div>
+			</td>
+		</tr>
+	</table>
+
+	<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 28px;">
+		<tr>
+			<td align="center" bgcolor="#d4af37" style="border-radius:999px;">
+				<a th:href="${link}" href="#" style="display:inline-block;padding:14px 34px;font-family:'Montserrat',Helvetica,Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#1c1917;text-decoration:none;border-radius:999px;">Guarda l'auto</a>
+			</td>
+		</tr>
+	</table>
+
+	<p style="margin:0;font-size:12px;color:#78716c;">
+		Non vuoi pi&ugrave; ricevere avvisi di prezzo per questa auto?
+		<a th:href="${linkDisiscrizione}" href="#" style="color:#a16207;">Disattiva l'avviso</a>
+	</p>
+</div>
 </body>
 </html>

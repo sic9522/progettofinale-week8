@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import api from '../services/api'
+import { segnaNotificheViste } from '../hooks/useNotificheNuove'
 
 function AdminNotifiche() {
   const [notifiche, setNotifiche] = useState([])
@@ -12,7 +13,10 @@ function AdminNotifiche() {
     api
       .get('/api/admin/notifiche')
       .then(({ data }) => {
-        if (!annullato) setNotifiche(data)
+        if (annullato) return
+        setNotifiche(data)
+        // l'admin le sta guardando: spegne il pallino di sidebar e menu
+        segnaNotificheViste()
       })
       .finally(() => {
         if (!annullato) setLoading(false)

@@ -175,6 +175,23 @@ h1, h2, h3, h4, h5, h6 {
   background: rgba(255, 255, 255, 0.12);
 }
 
+/* mobile: nome dell'utente al posto dell'icona account. Sta nei 88px del lato
+   sinistro dell'header (che tengono il titolo centrato): i nomi lunghi si troncano */
+.header-icon-btn.header-account-mobile {
+  width: auto;
+  max-width: 88px;
+  padding: 0 0.5rem;
+}
+
+.header-account-mobile-nome {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
 .header-icon-btn.dropdown-toggle::after {
   display: none;
 }
@@ -310,6 +327,46 @@ h1, h2, h3, h4, h5, h6 {
 
 .app-sidebar-desktop {
   display: none;
+}
+
+/* pallino rosso "nuove notifiche" (admin): sull'icona Notifiche della sidebar,
+   sull'hamburger e sulla voce del menu mobile */
+.app-sidebar-icona-box {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.notifica-pallino {
+  position: absolute;
+  top: -3px;
+  right: -4px;
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: #e5484d;
+  box-shadow: 0 0 0 2px var(--color-surface);
+  animation: notifica-pulsa 1.8s ease-in-out infinite;
+}
+
+.header-icon-btn .notifica-pallino {
+  box-shadow: 0 0 0 2px var(--color-header-bg);
+}
+
+.notifica-pallino-testo {
+  top: -2px;
+  right: -12px;
+}
+
+@keyframes notifica-pulsa {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.25); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .notifica-pallino {
+    animation: none;
+  }
 }
 
 /* pagine senza header (login, intro di Chi Siamo): gli elementi posizionati rispetto

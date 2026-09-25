@@ -3,6 +3,7 @@ import { NavLink, useNavigate } from 'react-router-dom'
 
 import { NAV_ITEMS_ADMIN, NAV_ITEMS_UTENTE } from '../data/navItems'
 import { isAdmin } from '../utils/ruolo'
+import { segnaNotificheViste, useNotificheNuove } from '../hooks/useNotificheNuove'
 
 function Icona({ children }) {
   return (
@@ -93,6 +94,7 @@ function SidebarDesktop() {
   const [aperta, setAperta] = useState(false)
   const admin = isAdmin()
   const navItems = admin ? NAV_ITEMS_ADMIN : NAV_ITEMS_UTENTE
+  const notificheNuove = useNotificheNuove(admin)
 
   const asideRef = useRef(null)
 
@@ -144,10 +146,18 @@ function SidebarDesktop() {
             title={item.label}
             aria-label={item.label}
             className={({ isActive }) => `nav-link app-sidebar-voce${isActive ? ' active' : ''}`}
-            onClick={() => setAperta(false)}
+            onClick={() => {
+              setAperta(false)
+              if (item.to === '/notifiche') segnaNotificheViste()
+            }}
           >
             <span className="app-sidebar-label">{item.label}</span>
-            {ICONE[item.to]}
+            <span className="app-sidebar-icona-box">
+              {ICONE[item.to]}
+              {item.to === '/notifiche' && notificheNuove && (
+                <span className="notifica-pallino" aria-label="Nuove notifiche" />
+              )}
+            </span>
           </NavLink>
         ))}
       </nav>

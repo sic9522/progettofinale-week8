@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'motion/react'
 
 import { NAV_ITEMS_ADMIN, NAV_ITEMS_UTENTE } from '../data/navItems'
 import { useIsDesktop } from '../hooks/useIsDesktop'
+import { segnaNotificheViste, useNotificheNuove } from '../hooks/useNotificheNuove'
 import { isAdmin } from '../utils/ruolo'
 import api from '../services/api'
 
@@ -63,10 +64,17 @@ function AccountMenu({ className, isDesktop, autenticato, admin, nomeUtente, onL
     )
   }
 
+  // mobile: il nome prende il posto dell'icona; l'ospite (nessun nome) tiene l'icona
+  const nomeMobile = !isDesktop && autenticato ? (admin ? 'Admin' : nomeUtente) : ''
+
   return (
     <Dropdown align="end">
-      <Dropdown.Toggle as="button" className={className} aria-label="Menu profilo">
-        <ProfileIcon />
+      <Dropdown.Toggle
+        as="button"
+        className={nomeMobile ? `${className} header-account-mobile` : className}
+        aria-label="Menu profilo"
+      >
+        {nomeMobile ? <span className="header-account-mobile-nome">{nomeMobile}</span> : <ProfileIcon />}
         {isDesktop && autenticato && nomeUtente && <span className="header-account-nome">{nomeUtente}</span>}
       </Dropdown.Toggle>
       <Dropdown.Menu>
@@ -104,6 +112,8 @@ function Header() {
   const [admin, setAdmin] = useState(isAdmin)
   const [nomeUtente, setNomeUtente] = useState('')
   const navItems = admin ? NAV_ITEMS_ADMIN : NAV_ITEMS_UTENTE
+  // su desktop il pallino lo mostra la sidebar, qui serve solo al menu mobile
+  const notificheNuove = useNotificheNuove(admin && !isDesktop)
 
   useEffect(() => {
     if (searchOpen) inputRef.current?.focus()
@@ -257,10 +267,13 @@ function Header() {
               <button
                 type="button"
                 className="header-icon-btn"
-                aria-label="Apri menu"
+                aria-label={notificheNuove ? 'Apri menu (nuove notifiche)' : 'Apri menu'}
                 onClick={() => setSidebarOpen(true)}
               >
-                <HamburgerIcon />
+                <span className="app-sidebar-icona-box">
+                  <HamburgerIcon />
+                  {notificheNuove && <span className="notifica-pallino" />}
+                </span>
               </button>
             </div>
           </>
@@ -334,9 +347,17 @@ function Header() {
                   as={NavLink}
                   to={item.to}
                   end={item.end}
-                  onClick={() => setSidebarOpen(false)}
+                  onClick={() => {
+                    setSidebarOpen(false)
+                    if (item.to === '/notifiche') segnaNotificheViste()
+                  }}
                 >
-                  {item.label}
+                  <span className="app-sidebar-icona-box">
+                    {item.label}
+                    {item.to === '/notifiche' && notificheNuove && (
+                      <span className="notifica-pallino notifica-pallino-testo" aria-label="Nuove notifiche" />
+                    )}
+                  </span>
                 </Nav.Link>
               ))}
             </Nav>

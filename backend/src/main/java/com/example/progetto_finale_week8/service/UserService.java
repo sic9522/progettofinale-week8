@@ -118,13 +118,21 @@ public class UserService {
 	@Transactional(readOnly = true)
 	public List<UserResponse> cercaPerTermine(String termine) {
 		String pulito = termine.trim();
-		if (pulito.matches("\\d+")) {
-			return userRepository.findById(Long.valueOf(pulito)).map(UserResponse::of).map(List::of).orElse(List.of());
+		if (pulito.isEmpty()) {
+			return List.of();
 		}
-		if (pulito.contains("@")) {
-			return userRepository.findByEmail(pulito).map(UserResponse::of).map(List::of).orElse(List.of());
-		}
-		return userRepository.findByCognomeContainingIgnoreCase(pulito).stream().map(UserResponse::of).toList();
+		// id numerico esatto; altrimenti ricerca parziale su cognome, nome o email, perche'
+		// il frontend cerca mentre si scrive (un'email a meta' deve gia' dare risultati).
+		// Solo clienti: l'admin non e' mai il destinatario di un noleggio
+		List<User> trovati = pulito.matches("\\d+")
+			? userRepository.findById(Long.valueOf(pulito)).map(List::of).orElse(List.of())
+			: userRepository.findByCognomeContainingIgnoreCaseOrNomeContainingIgnoreCaseOrEmailContainingIgnoreCase(
+				pulito, pulito, pulito);
+		return trovati.stream()
+			.filter(u -> u.getRuolo() != Ruolo.ADMIN)
+			.limit(10)
+			.map(UserResponse::of)
+			.toList();
 	}
 
 	// cancella preferiti/avvisi prima dell'utente: da quel momento non parte più nessuna mail

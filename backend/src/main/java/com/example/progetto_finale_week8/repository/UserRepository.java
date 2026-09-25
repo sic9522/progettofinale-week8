@@ -18,6 +18,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
 	Optional<User> findByNumeroTessera(UUID numeroTessera);
 
-	List<User> findByCognomeContainingIgnoreCase(String cognome);
+	List<User> findByCognomeContainingIgnoreCaseOrNomeContainingIgnoreCaseOrEmailContainingIgnoreCase(
+		String cognome, String nome, String email);
 
 }

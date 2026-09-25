@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"></head>
+<body>
+	<p>Ciao <span th:text="${nome}">nome</span>,</p>
+	<p>il tuo codice di accesso è:</p>
+	<p style="font-size: 24px; font-weight: bold;" th:text="${codice}">000000</p>
+	<p>Il codice scade tra 10 minuti.</p>
+</body>
+</html>

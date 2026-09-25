@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"></head>
+<body>
+	<p>Ciao <span th:text="${nome}">nome</span>,</p>
+	<p>conferma la tua registrazione cliccando sul link qui sotto:</p>
+	<p><a th:href="${link}" th:text="${link}">link</a></p>
+	<p>Il link scade tra 15 minuti.</p>
+</body>
+</html>

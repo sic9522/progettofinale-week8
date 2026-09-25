@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"></head>
+<body>
+	<p>Il prezzo di <span th:text="${marca}">marca</span> <span th:text="${modello}">modello</span>
+		è sceso sotto la soglia che avevi impostato: ora è <span th:text="${prezzo}">0</span> €.</p>
+	<p><a th:href="${link}">Vedi l'annuncio</a></p>
+	<p><a th:href="${linkDisiscrizione}">Disattiva questo avviso di prezzo</a></p>
+</body>
+</html>

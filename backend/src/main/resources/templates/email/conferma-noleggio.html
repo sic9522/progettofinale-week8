@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"></head>
+<body>
+	<p>Ciao <span th:text="${nome}">nome</span>,</p>
+	<p>il tuo noleggio è confermato per <strong th:text="${marca} + ' ' + ${modello}">auto</strong>:</p>
+	<ul>
+		<li>Durata: <span th:text="${mesi}">24</span> mesi</li>
+		<li>Anticipo: <span th:text="${anticipo}">0</span> €</li>
+		<li>Rata mensile: <span th:text="${rata}">0</span> €/mese</li>
+	</ul>
+	<p><a th:href="${link}" th:text="${link}">link</a></p>
+	<p>Per qualsiasi informazione, rispondi pure a questa email.</p>
+</body>
+</html>

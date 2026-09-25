@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"></head>
+<body>
+	<p>Ciao <span th:text="${nome}">nome</span>,</p>
+	<p>ti informiamo che il noleggio di <strong th:text="${marca} + ' ' + ${modello}">auto</strong> è stato chiuso in anticipo.</p>
+	<p>Per qualsiasi informazione, rispondi pure a questa email.</p>
+</body>
+</html>

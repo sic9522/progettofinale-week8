@@ -1,6 +1,8 @@
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { motion, useScroll, useTransform } from 'motion/react'
+
+import { precaricaVetrina } from '../services/vetrina'
 
 const EASE = [0.65, 0, 0.35, 1]
 
@@ -141,6 +143,10 @@ function ChiSiamo() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const introPostLogin = searchParams.has('intro')
+
+  useEffect(() => {
+    if (introPostLogin) precaricaVetrina()
+  }, [introPostLogin])
 
   const { scrollYProgress: pageProgress } = useScroll()
 

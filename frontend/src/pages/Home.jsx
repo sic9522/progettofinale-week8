@@ -10,6 +10,7 @@ import CarCard from '../components/CarCard'
 import CarModal from '../components/CarModal'
 import { BRANDS } from '../data/brands'
 import api from '../services/api'
+import { caricaVetrina } from '../services/vetrina'
 import { isAdmin } from '../utils/ruolo'
 
 function BrandRow({ brand, cars, onSelect }) {
@@ -21,8 +22,8 @@ function BrandRow({ brand, cars, onSelect }) {
         modules={[Navigation]}
         slidesPerView={3}
         spaceBetween={12}
-        loop={cars.length > 3}
-        navigation={cars.length > 3}
+        loop={cars.length > 4}
+        navigation={cars.length > 4}
         breakpoints={{ 992: { slidesPerView: 4 } }}
         className="card-carousel"
       >
@@ -77,19 +78,11 @@ function Home() {
 
     async function carica() {
       try {
-        const [top, offerteRes, ...perMarca] = await Promise.all([
-          api.get('/api/auto', { params: { sort: 'prezzo,desc', size: 4 } }),
-          api.get('/api/auto', { params: { inOfferta: true, size: 24 } }),
-          ...BRANDS.map((brand) => api.get('/api/auto', { params: { marca: brand.name, size: 6 } })),
-        ])
+        const dati = await caricaVetrina()
         if (annullato) return
-        setTopCars(top.data.content)
-        setOfferte(offerteRes.data.content)
-        const perMarcaMap = {}
-        BRANDS.forEach((brand, i) => {
-          perMarcaMap[brand.slug] = perMarca[i].data.content
-        })
-        setBrandCars(perMarcaMap)
+        setTopCars(dati.topCars)
+        setOfferte(dati.offerte)
+        setBrandCars(dati.perMarca)
       } catch {
         if (!annullato) setErrore(true)
       } finally {
@@ -177,8 +170,8 @@ function Home() {
                 modules={[Autoplay, Navigation]}
                 slidesPerView={2}
                 spaceBetween={12}
-                loop={topCars.length > 2}
-                navigation={topCars.length > 2}
+                loop={topCars.length > 3}
+                navigation={topCars.length > 3}
                 breakpoints={{ 992: { slidesPerView: 3 } }}
                 autoplay={prefersReducedMotion ? false : { delay: 5000, disableOnInteraction: false }}
                 className="card-carousel"

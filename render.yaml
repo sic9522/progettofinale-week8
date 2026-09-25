@@ -17,7 +17,9 @@ services:
     region: frankfurt
     rootDir: backend
     dockerfilePath: ./Dockerfile
-    healthCheckPath: /actuator/health
+    # endpoint pubblico e leggero che risponde solo se anche il database e' raggiungibile
+    # (actuator non e' tra le dipendenze: /actuator/health darebbe 404)
+    healthCheckPath: /api/auto?size=1
     buildFilter:
       paths:
         - backend/**

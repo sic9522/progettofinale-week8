@@ -12,6 +12,10 @@ COPY mvnw pom.xml ./
 RUN chmod +x mvnw && ./mvnw -B -ntp dependency:go-offline
 
 COPY src/ src/
+# application.properties e' in .gitignore (in locale ognuno ha il suo): nel repo c'e'
+# solo il .example, che legge tutto da variabili d'ambiente e non contiene segreti.
+# Senza questa copia l'app partirebbe senza configurazione e cadrebbe al primo @Value
+RUN cp src/main/resources/application.properties.example src/main/resources/application.properties
 RUN ./mvnw -B -ntp -DskipTests package
 
 # --- Fase 2: esecuzione -------------------------------------------------------
